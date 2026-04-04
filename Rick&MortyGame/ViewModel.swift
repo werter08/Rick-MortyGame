@@ -16,7 +16,25 @@ final class ViewModel: ObservableObject {
     @Published var points = -1
     @Published var errorMessage = ""
     @Published var character: CharachterModel? = nil
+    @Published var nextCharacter: CharachterModel? = nil
 
+    
+
+    init() {
+        let id = Int.random(in: ViewModel.minId...ViewModel.maxId)
+        ViewModel.getCharacterFromNetwork(id: id)
+            .sink { result in
+                switch result {
+                case .failure(let error): self.errorMessage = error.localizedDescription
+                case .finished: self.isLoading = false
+                }
+            } receiveValue: { model in
+                self.isLoading = false
+                self.nextCharacter = model
+            }
+            .store(in: &cancallables)
+    }
+    
     
     
     public func getRandomChar() {
@@ -36,12 +54,13 @@ final class ViewModel: ObservableObject {
         }
         getRandomChar()
     }
-    
-    
+
     
     private func getCharachterBy(id: Int) {
         guard !isLoading else { return }
+        
         isLoading = true
+        character = nextCharacter
         ViewModel.getCharacterFromNetwork(id: id)
             .sink { result in
                 switch result {
@@ -50,7 +69,9 @@ final class ViewModel: ObservableObject {
                 }
             } receiveValue: { model in
                 self.isLoading = false
-                self.character = model
+                
+                self.nextCharacter  = model
+                
             }
             .store(in: &cancallables)
     }
