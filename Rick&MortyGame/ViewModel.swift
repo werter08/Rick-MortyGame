@@ -84,16 +84,17 @@ final class ViewModel: ObservableObject {
                 case .failure(let error): self.errorMessage = error.localizedDescription
                 case .finished: self.isLoading = false
                 }
-            } receiveValue: { model in
+            } receiveValue: { [self] model in
                 self.isLoading = false
-                let ids: [Int] = model.characters.compactMap{$0.getId}
+                self.config.recordUnlockedEpisode(id: id, title: model.episode.displayEpisode)
+                let ids: [Int] = model.characters.compactMap { $0.getId }
                 self.ChactersInFetch = ids.count
                 self.getCharachterBy(id: ids, episode: model.episode, location: nil)
                 self.fetchedCardName = model.episode.displayEpisode
             }
             .store(in: &cancallables)
     }
-    
+
     private func getLocation(id: Int) {
         guard !isLoading else { return }
         allFetched = false
@@ -104,20 +105,22 @@ final class ViewModel: ObservableObject {
                 case .failure(let error): self.errorMessage = error.localizedDescription
                 case .finished: self.isLoading = false
                 }
-            } receiveValue: { model in
+            } receiveValue: { [self] model in
                 self.isLoading = false
-                let ids: [Int] = model.residents.compactMap{$0.getId}
+                let ids: [Int] = model.residents.compactMap { $0.getId }
                 self.ChactersInFetch = ids.count
 
+                let title: String
                 if model.dimension != "unknown" {
+                    title = model.dimension + " · " + model.name
                     self.getCharachterBy(id: ids, episode: nil, location: model.dimension + " " + model.name)
                     self.fetchedCardName = model.dimension + " " + model.name
-
                 } else {
+                    title = model.name
                     self.getCharachterBy(id: ids, episode: nil, location: model.name)
                     self.fetchedCardName = model.name
-
                 }
+                self.config.recordUnlockedLocation(id: id, title: title)
             }
             .store(in: &cancallables)
     }
@@ -133,10 +136,10 @@ final class ViewModel: ObservableObject {
             getLocation(id: id)
             config.locationCost += 2
             points -= 2
-            
+            config.objectWillChange.send()
         }
     }
-    
+
     func buyRandomEpisode() {
         if let id = config.closedEpisodes.randomElement() {
             allFetched = false
@@ -148,6 +151,7 @@ final class ViewModel: ObservableObject {
             getEpisode(id: id)
             config.episodeCost += 4
             points -= 4
+            config.objectWillChange.send()
         }
     }
 }
@@ -156,6 +160,8 @@ extension ViewModel {
     
     static func getCharacterFromNetwork(id: [Int]) -> AnyPublisher<[CharachterModel], APIError> {
         Network.perform(endpoint: Endpoints.getCharackter(id: id))
+            .map { (envelope: CharacterListAPIEnvelope) in envelope.characters }
+            .eraseToAnyPublisher()
     }
     static func getEpisodeFromNetwork(id: Int) -> AnyPublisher<EpisodeModel, APIError> {
         Network.perform(endpoint: Endpoints.getEpisode(id: id))

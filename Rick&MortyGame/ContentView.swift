@@ -6,26 +6,27 @@
 //
 
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
     @StateObject var viewModel = ViewModel()
-    
+
     var body: some View {
         TabView {
             GameView()
                 .tabItem {
-                    Label("Home", systemImage: "house")
+                    Label("Play", systemImage: "sparkles.tv")
+                }
+            CollectionView()
+                .tabItem {
+                    Label("Collection", systemImage: "square.stack.fill")
                 }
             ShopView()
                 .tabItem {
-                    Label("Shop", systemImage: "basket.fill")
+                    Label("Shop", systemImage: "cart.fill")
                 }
         }
         .environmentObject(viewModel)
+        .tint(RMTheme.portalCyan)
+        .preferredColorScheme(.dark)
     }
-    
 }
-
-
-

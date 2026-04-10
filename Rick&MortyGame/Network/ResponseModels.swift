@@ -29,6 +29,22 @@ class LocationModel: Codable {
     let residents: [String]
 }
 
+/// The Rick and Morty API returns a **JSON array** for `/character/1,2,3` and a **single JSON object** for `/character/1`.
+struct CharacterListAPIEnvelope: Decodable {
+    let characters: [CharachterModel]
+
+    init(from decoder: Decoder) throws {
+        if var unkeyed = try? decoder.unkeyedContainer() {
+            var list: [CharachterModel] = []
+            while !unkeyed.isAtEnd {
+                list.append(try unkeyed.decode(CharachterModel.self))
+            }
+            characters = list
+        } else {
+            characters = [try CharachterModel(from: decoder)]
+        }
+    }
+}
 
 enum CStatus: String, CaseIterable {
     case alive = "Alive"

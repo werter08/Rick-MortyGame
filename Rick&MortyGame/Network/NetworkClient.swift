@@ -29,12 +29,7 @@ class Network {
                     case .success(let data):
                         promise(.success(data))
                     case .failure(let error):
-                        if let data = response.data,
-                           let message = String(data: data, encoding: .utf8) {
-                            promise(.failure(APIError(detail: message)))
-                        } else {
-                            promise(.failure(APIError(detail: error.localizedDescription)))
-                        }
+                        promise(.failure(APIError.fromAlamofire(error, responseData: response.data)))
                     }
                 }
 
@@ -46,4 +41,34 @@ class Network {
 struct APIError: LocalizedError {
     let detail: String
     var errorDescription: String? { detail }
+
+    static func fromAlamofire(_ error: Error, responseData: Data?) -> APIError {
+        if let data = responseData,
+           let message = String(data: data, encoding: .utf8),
+           !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           message.hasPrefix("{") || message.hasPrefix("[") {
+            if message.contains("\"error\"") {
+                return APIError(detail: "Server: \(message)")
+            }
+        }
+
+        if let af = error as? AFError {
+            switch af {
+            case .responseSerializationFailed(let reason):
+                switch reason {
+                case .decodingFailed(let underlying):
+                    return APIError(
+                        detail: "Could not parse the response. \(underlying.localizedDescription)"
+                    )
+                default:
+                    break
+                }
+            default:
+                break
+            }
+            return APIError(detail: af.localizedDescription)
+        }
+
+        return APIError(detail: error.localizedDescription)
+    }
 }
