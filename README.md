@@ -11,15 +11,7 @@ An **iOS** game built with **SwiftUI** where you collect characters from the [Ri
 |:--:|:--:|:--:|
 | ![Play tab](screenshots/play.jpeg) | ![Collection tab](screenshots/collection.jpeg) | ![Shop tab](screenshots/shop.jpeg) |
 
-**Expected files**
 
-| File | What to capture |
-|------|-----------------|
-| `screenshots/play.jpeg` | Main game: character card, status buttons, collection summary, points |
-| `screenshots/collection.jpeg` | Unlocked episodes & locations lists |
-| `screenshots/shop.jpeg` | Shop: points, episode & location pack buttons |
-
-> **Tip:** In Simulator, use **File → Save Screen** or `⌘ + S`, then rename and copy into `screenshots/`.
 
 ---
 
