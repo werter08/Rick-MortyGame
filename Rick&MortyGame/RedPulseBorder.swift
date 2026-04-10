@@ -25,7 +25,7 @@ struct RedPulseBorder: View {
             RoundedRectangle(cornerRadius: 48)
                 .strokeBorder(
                     AngularGradient(
-                        gradient: Gradient(colors: !isTrue ? [.red, .orange, .red] : [.green, .cyan, .green]),
+                        gradient: Gradient(colors: !isTrue ? [.red, .red] : [.green, .green]),
                         center: .center
                     ),
                     lineWidth: 32

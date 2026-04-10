@@ -9,11 +9,24 @@ import Foundation
 import SwiftUI
 
 class CharachterModel: Codable {
+    let id: Int
     let name: String
     let image: String
     let status: CStatus.RawValue
     let species: CSpecies.RawValue
     let gender: CGender.RawValue
+    var getFrom: String?
+}
+
+class EpisodeModel: Codable {
+    let episode: String
+    let characters: [String]
+}
+
+class LocationModel: Codable {
+    let name: String
+    let dimension: String
+    let residents: [String]
 }
 
 

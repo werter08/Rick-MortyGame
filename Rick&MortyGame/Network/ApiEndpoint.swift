@@ -22,7 +22,9 @@ var BASE_URL = "https://rickandmortyapi.com/api"  //Prod
 enum Endpoints: Endpoint {
     
 
-    case getCharackter(id: Int)
+    case getCharackter(id: [Int])
+    case getEpisode(id: Int)
+    case getLocation(id: Int)
     
    
     
@@ -35,22 +37,26 @@ enum Endpoints: Endpoint {
     
     var path: String {
         var endPath = ""
-        switch self { case .getCharackter(let id): endPath = "/character/\(id)" }
+        switch self {
+        case .getCharackter(let id): endPath = "/character/\(id.map { String($0) }.joined(separator: ", "))"
+        case .getEpisode(let id): endPath = "/episode/\(id)"
+        case .getLocation(let id): endPath = "/location/\(id)"
+            
+        }
         
         return BASE_URL+endPath
     }
     
     var encoder: any Alamofire.ParameterEncoding {
         switch self {
-        case .getCharackter: return URLEncoding(destination: .queryString, arrayEncoding: .noBrackets, boolEncoding: .literal)
-        default: return JSONEncoding.default
+        default: return URLEncoding(destination: .queryString, arrayEncoding: .noBrackets, boolEncoding: .literal)
         }
     }
         
     
     var header: Alamofire.HTTPHeaders {return ["Content-Type": "application/json"]}
     
-    var body: [String: Codable]? { switch self { case .getCharackter: return [:] } }
+    var body: [String: Codable]? { switch self { default: return [:] } }
 }
 
 
